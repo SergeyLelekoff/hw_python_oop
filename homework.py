@@ -49,7 +49,9 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError(
+              'get_spent_calories() не определена в классе'
+              '%s.' % (self.__class__.__name__))
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -121,7 +123,6 @@ class Swimming(Training):
         return mean_spd
 
     def get_spent_calories(self) -> float:
-        # (средняя_скорость + 1.1) * 2 * вес * время_тренировки
         callor: float = ((self.get_mean_speed() + self.SWM_COEFF)
                          * self.WEIGHT_COEFF * self.weight * self.duration)
         return callor
@@ -129,11 +130,14 @@ class Swimming(Training):
 
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
-    tp_trng = {'SWM': Swimming,
-               'RUN': Running,
-               'WLK': SportsWalking
-               }
-    return tp_trng[workout_type](*data)
+    tp_trng: dict[str, Training] = {'SWM': Swimming,
+                                    'RUN': Running,
+                                    'WLK': SportsWalking
+                                    }
+    if workout_type in tp_trng:
+        tp_class: Training = tp_trng[workout_type](*data)
+        return tp_class
+    raise KeyError(f'Тип тренировки: {workout_type} отсутсвует')
 
 
 def main(training: Training) -> None:
